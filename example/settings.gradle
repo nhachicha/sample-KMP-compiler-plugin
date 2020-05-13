@@ -1,0 +1,18 @@
+pluginManagement {
+    repositories {
+        maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
+
+        maven { url 'https://plugins.gradle.org/m2/' }
+
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+        mavenCentral()
+        mavenLocal()
+        jcenter()
+    }
+}
+rootProject.name = 'kotlin-multiplatform-sample'
+
+
+enableFeaturePreview('GRADLE_METADATA')

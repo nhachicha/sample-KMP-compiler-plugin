@@ -1,0 +1,5 @@
+rootProject.name = 'accessor-modifier'
+
+include 'compiler-plugin'
+include 'gradle-plugin'
+

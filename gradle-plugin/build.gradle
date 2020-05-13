@@ -1,0 +1,40 @@
+plugins {
+    id 'com.gradle.plugin-publish' version '0.11.0'
+}
+
+apply plugin: "java-gradle-plugin"
+apply plugin: "org.jetbrains.kotlin.jvm"
+apply plugin: "org.jetbrains.kotlin.kapt"
+apply plugin: "maven-publish"
+
+pluginBundle {
+    website = 'https://github.com/nhachicha/kotlin-kmp-compiler-plugin-sample'
+    vcsUrl = 'https://github.com/nhachicha/kotlin-kmp-compiler-plugin-sample.git'
+    tags = ['kotlin', 'compiler-plugin', 'IR', 'KMP', 'Konan']
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+}
+
+gradlePlugin {
+    plugins {
+        accessorModifierPlugin {
+            id = "dev.nhachicha.accessor-modifier-compiler-plugin"
+            displayName = "Accessor modifier compiler plugin"
+            description = "Example Plugin using IR to modify accessor of a class (KMP)"
+            implementationClass = "dev.nhachicha.gradle.AccessorModifierGradleSubplugin"
+        }
+    }
+}
+
+dependencies {
+    compileOnly deps.kotlin.gradle
+    kapt deps.autoService.compiler
+    compileOnly deps.autoService.annotations
+
+}
