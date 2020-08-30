@@ -27,7 +27,7 @@ gradlePlugin {
             id = "dev.nhachicha.accessor-modifier-compiler-plugin"
             displayName = "Accessor modifier compiler plugin"
             description = "Example Plugin using IR to modify accessor of a class (KMP)"
-            implementationClass = "dev.nhachicha.gradle.AccessorModifierGradleSubplugin"
+            implementationClass = "dev.nhachicha.gradle.AccessorModifierKotlinGradleSubplugin"
         }
     }
 }

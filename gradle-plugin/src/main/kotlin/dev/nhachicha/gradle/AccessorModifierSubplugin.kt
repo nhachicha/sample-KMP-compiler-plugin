@@ -19,49 +19,45 @@ package dev.nhachicha.gradle
 import com.google.auto.service.AutoService
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.api.tasks.compile.AbstractCompile
+import org.gradle.api.provider.Provider
 import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
-import org.jetbrains.kotlin.gradle.plugin.KotlinGradleSubplugin
+import org.jetbrains.kotlin.gradle.plugin.KotlinCompilerPluginSupportPlugin
 import org.jetbrains.kotlin.gradle.plugin.SubpluginArtifact
 import org.jetbrains.kotlin.gradle.plugin.SubpluginOption
 
 class AccessorModifierGradleSubplugin : Plugin<Project> {
     companion object {
-        fun isEnabled(project: Project) = project.plugins.findPlugin(AccessorModifierGradleSubplugin::class.java) != null
+        fun isEnabled(project: Project) = project.plugins.findPlugin(AccessorModifierKotlinGradleSubplugin::class.java) != null
     }
 
     override fun apply(project: Project) {}
 }
 
-@AutoService(KotlinGradleSubplugin::class)
-class AccessorModifierKotlinGradleSubplugin : KotlinGradleSubplugin<AbstractCompile> {
+@AutoService(KotlinCompilerPluginSupportPlugin::class)
+class AccessorModifierKotlinGradleSubplugin : KotlinCompilerPluginSupportPlugin {
     companion object {
         const val ARTIFACT_GROUP_NAME = "dev.nhachicha"
-        const val ARTIFACT_SHADED_NAME = "accessor-modifier-compiler-plugin"
-        const val ARTIFACT_UNSHADED_NAME = "accessor-modifier-compiler-plugin-unshaded"
+        const val ARTIFACT_NAME = "accessor-modifier-compiler-plugin"
+        const val ARTIFACT_SHADED_NAME = "accessor-modifier-compiler-plugin-shaded"
         const val ARTIFACT_VERSION = "0.0.1-SNAPSHOT"
         const val PLUGIN_ID = "dev.nhachicha.accessor-modifier-compiler-plugin"
     }
 
-    override fun isApplicable(project: Project, task: AbstractCompile): Boolean =
-            AccessorModifierGradleSubplugin.isEnabled(project)
+    override fun isApplicable(kotlinCompilation: KotlinCompilation<*>): Boolean =
+            AccessorModifierGradleSubplugin.isEnabled(kotlinCompilation.target.project)
 
-    override fun apply(
-            project: Project,
-            kotlinCompile: AbstractCompile,
-            javaCompile: AbstractCompile?,
-            variantData: Any?,
-            androidProjectHandler: Any?,
-            kotlinCompilation: KotlinCompilation<*>?
-    ): List<SubpluginOption> {
-        return emptyList()
+    override fun applyToCompilation(kotlinCompilation: KotlinCompilation<*>): Provider<List<SubpluginOption>> {
+        val project = kotlinCompilation.target.project
+        return project.provider {
+            listOf(SubpluginOption(key = "optio-key", value = "option-value"))
+        }
     }
 
     override fun getPluginArtifact(): SubpluginArtifact =
-            SubpluginArtifact(ARTIFACT_GROUP_NAME, ARTIFACT_SHADED_NAME, ARTIFACT_VERSION)
+            SubpluginArtifact(ARTIFACT_GROUP_NAME, ARTIFACT_NAME, ARTIFACT_VERSION)
 
-    override fun getNativeCompilerPluginArtifact(): SubpluginArtifact? =
-            SubpluginArtifact(ARTIFACT_GROUP_NAME, ARTIFACT_UNSHADED_NAME, ARTIFACT_VERSION)
+    override fun getPluginArtifactForNative(): SubpluginArtifact? =
+            SubpluginArtifact(ARTIFACT_GROUP_NAME, ARTIFACT_SHADED_NAME, ARTIFACT_VERSION)
 
     override fun getCompilerPluginId() = PLUGIN_ID
 }
