@@ -18,20 +18,20 @@ shadowJar {
     // use the same artifact name, but within a different location
     archiveClassifier.set("")
     destinationDirectory = file("$buildDir/shaded")
-    relocate "com.intellij", "org.jetbrains.kotlin.com.intellij"
+    relocate "org.jetbrains.kotlin.com.intellij", "com.intellij"
 }
 
 def id = 'accessor-modifier-compiler-plugin'
 
 publishing {
     publications {
-        unshaded(MavenPublication) { // unshaded artifact for Kotlin/Native (Konan)
-            artifactId "${id}-unshaded"
+        unshaded(MavenPublication) { // unshaded artifact for Koltin JVM
+            artifactId "${id}"
             from components.java
         }
 
-        shaded(MavenPublication) { // shaded artifact for Koltin JVM
-            artifactId id
+        shaded(MavenPublication) { // shaded artifact for Kotlin/Native (Konan)
+            artifactId "${id}-shaded"
             artifact shadowJar
         }
     }
