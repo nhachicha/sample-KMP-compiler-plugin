@@ -29,20 +29,18 @@ import org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.descriptors.ClassKind
 import org.jetbrains.kotlin.ir.IrElement
+import org.jetbrains.kotlin.ir.IrStatement
 import org.jetbrains.kotlin.ir.builders.*
-import org.jetbrains.kotlin.ir.declarations.IrAnnotationContainer
-import org.jetbrains.kotlin.ir.declarations.IrClass
-import org.jetbrains.kotlin.ir.declarations.IrFile
-import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
+import org.jetbrains.kotlin.ir.declarations.*
 import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrReturn
+import org.jetbrains.kotlin.ir.types.isNullableString
+import org.jetbrains.kotlin.ir.types.isString
 import org.jetbrains.kotlin.ir.util.dump
+import org.jetbrains.kotlin.ir.util.isGetter
 import org.jetbrains.kotlin.ir.util.parentAsClass
-import org.jetbrains.kotlin.ir.visitors.IrElementVisitorVoid
-import org.jetbrains.kotlin.ir.visitors.acceptChildrenVoid
-import org.jetbrains.kotlin.ir.visitors.acceptVoid
-import org.jetbrains.kotlin.ir.visitors.transformChildrenVoid
+import org.jetbrains.kotlin.ir.visitors.*
 import org.jetbrains.kotlin.name.FqName
 import org.jetbrains.kotlin.resolve.descriptorUtil.fqNameSafe
 import java.io.FileWriter
@@ -87,13 +85,25 @@ private class RealmObjectClassLowering(val context: IrPluginContext) :
         ) {
             if (irClass.isRealmObject) {
                 irClass.transformChildrenVoid(object : IrElementTransformerVoidWithContext() {
-                    override fun visitReturn(expression: IrReturn): IrExpression {
-                        logger("modifying expression: ${expression.dump()}")
-                        return IrBlockBuilder(context, currentScope?.scope!!, expression.startOffset, expression.endOffset).irBlock {
-                            val irConcat = irConcat()
-                            irConcat.addArgument(irString("Hello "))
-                            irConcat.addArgument(expression.value)
-                            +irReturn(irConcat)
+                    override fun visitFunctionNew(declaration: IrFunction): IrStatement {
+                        return if (declaration.isPropertyAccessor
+                                && declaration.isGetter
+                                && (declaration.returnType.isString() || declaration.returnType.isNullableString())
+                        ) {
+                            declaration.body?.transformChildrenVoid(object : IrElementTransformerVoid() {
+                                override fun visitReturn(expression: IrReturn): IrExpression {
+                                    logger("modifying expression: ${expression.dump()}")
+                                    return IrBlockBuilder(context, currentScope?.scope!!, expression.startOffset, expression.endOffset).irBlock {
+                                        val irConcat = irConcat()
+                                        irConcat.addArgument(irString("Hello "))
+                                        irConcat.addArgument(expression.value)
+                                        +irReturn(irConcat)
+                                    }
+                                }
+                            })
+                            super.visitFunctionNew(declaration)
+                        } else {
+                            super.visitFunctionNew(declaration)
                         }
                     }
                 })
@@ -114,7 +124,6 @@ fun ClassLoweringPass.runOnFileInOrder(irFile: IrFile) {
         }
     })
 }
-
 
 // Annotation
 private val IrClass.isRealmObject: Boolean get() = kind == ClassKind.CLASS && hasRealmObjectAnnotationWithoutArgs()
@@ -138,7 +147,7 @@ private fun IrAnnotationContainer.getAnnotation(name: FqName): IrConstructorCall
 // Logging to a temp file and to console/IDE (Build Output)
 lateinit var messageCollector: MessageCollector
 fun logger(message: String, severity: CompilerMessageSeverity = CompilerMessageSeverity.WARNING) {
-    val formattedMessage =  "[Kotlin Compiler] ${Instant.now()} $message\n"
+    val formattedMessage = "[Kotlin Compiler] ${Instant.now()} $message\n"
     messageCollector.report(severity, formattedMessage)
     FileWriter("/tmp/kmp.log").use {
         it.append(formattedMessage)
