@@ -38,7 +38,6 @@ class AccessorModifierKotlinGradleSubplugin : KotlinCompilerPluginSupportPlugin 
     companion object {
         const val ARTIFACT_GROUP_NAME = "dev.nhachicha"
         const val ARTIFACT_NAME = "accessor-modifier-compiler-plugin"
-        const val ARTIFACT_SHADED_NAME = "accessor-modifier-compiler-plugin-shaded"
         const val ARTIFACT_VERSION = "0.0.1-SNAPSHOT"
         const val PLUGIN_ID = "dev.nhachicha.accessor-modifier-compiler-plugin"
     }
@@ -49,7 +48,7 @@ class AccessorModifierKotlinGradleSubplugin : KotlinCompilerPluginSupportPlugin 
     override fun applyToCompilation(kotlinCompilation: KotlinCompilation<*>): Provider<List<SubpluginOption>> {
         val project = kotlinCompilation.target.project
         return project.provider {
-            listOf(SubpluginOption(key = "optio-key", value = "option-value"))
+            listOf(SubpluginOption(key = "option-key", value = "option-value"))
         }
     }
 
@@ -57,7 +56,7 @@ class AccessorModifierKotlinGradleSubplugin : KotlinCompilerPluginSupportPlugin 
             SubpluginArtifact(ARTIFACT_GROUP_NAME, ARTIFACT_NAME, ARTIFACT_VERSION)
 
     override fun getPluginArtifactForNative(): SubpluginArtifact? =
-            SubpluginArtifact(ARTIFACT_GROUP_NAME, ARTIFACT_SHADED_NAME, ARTIFACT_VERSION)
+            SubpluginArtifact(ARTIFACT_GROUP_NAME, ARTIFACT_NAME, ARTIFACT_VERSION)
 
     override fun getCompilerPluginId() = PLUGIN_ID
 }

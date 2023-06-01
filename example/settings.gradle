@@ -1,18 +1,13 @@
 pluginManagement {
     repositories {
-        maven { url 'https://dl.bintray.com/kotlin/kotlin-eap' }
-
-        maven { url 'https://plugins.gradle.org/m2/' }
-
-        maven {
-            url "https://plugins.gradle.org/m2/"
-        }
-        mavenCentral()
+        gradlePluginPortal()
         mavenLocal()
-        jcenter()
+    }
+}
+dependencyResolutionManagement {
+    repositories {
+        gradlePluginPortal()
+        mavenLocal()
     }
 }
 rootProject.name = 'kotlin-multiplatform-sample'
-
-
-enableFeaturePreview('GRADLE_METADATA')

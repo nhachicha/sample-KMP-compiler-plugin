@@ -1,7 +1,6 @@
 plugins {
     id("org.jetbrains.kotlin.jvm")
     id('org.jetbrains.kotlin.kapt')
-    id("com.github.johnrengelman.shadow") version "5.2.0"
     id("maven-publish")
 }
 
@@ -13,14 +12,6 @@ dependencies {
     compileOnly deps.autoService.annotations
 }
 
-shadowJar {
-    configurations = [project.configurations.compile]
-    // use the same artifact name, but within a different location
-    archiveClassifier.set("")
-    destinationDirectory = file("$buildDir/shaded")
-    relocate "org.jetbrains.kotlin.com.intellij", "com.intellij"
-}
-
 def id = 'accessor-modifier-compiler-plugin'
 
 publishing {
@@ -29,15 +20,5 @@ publishing {
             artifactId "${id}"
             from components.java
         }
-
-        shaded(MavenPublication) { // shaded artifact for Kotlin/Native (Konan)
-            artifactId "${id}-shaded"
-            artifact shadowJar
-        }
     }
-}
-
-
-compileKotlin {
-    kotlinOptions.jvmTarget = "1.8"
 }

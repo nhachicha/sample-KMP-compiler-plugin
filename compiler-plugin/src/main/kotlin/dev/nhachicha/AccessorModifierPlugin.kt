@@ -22,7 +22,11 @@ import org.jetbrains.kotlin.backend.common.IrElementTransformerVoidWithContext
 import org.jetbrains.kotlin.backend.common.extensions.IrGenerationExtension
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.com.intellij.mock.MockProject
+import org.jetbrains.kotlin.compiler.plugin.AbstractCliOption
+import org.jetbrains.kotlin.compiler.plugin.CliOption
+import org.jetbrains.kotlin.compiler.plugin.CommandLineProcessor
 import org.jetbrains.kotlin.compiler.plugin.ComponentRegistrar
+import org.jetbrains.kotlin.compiler.plugin.ExperimentalCompilerApi
 import org.jetbrains.kotlin.config.CompilerConfiguration
 import org.jetbrains.kotlin.ir.IrElement
 import org.jetbrains.kotlin.ir.IrStatement
@@ -33,11 +37,13 @@ import org.jetbrains.kotlin.ir.declarations.IrModuleFragment
 import org.jetbrains.kotlin.ir.declarations.isPropertyAccessor
 import org.jetbrains.kotlin.ir.expressions.IrExpression
 import org.jetbrains.kotlin.ir.expressions.IrReturn
+import org.jetbrains.kotlin.ir.expressions.addArgument
 import org.jetbrains.kotlin.ir.types.isNullableString
 import org.jetbrains.kotlin.ir.types.isString
 import org.jetbrains.kotlin.ir.util.isGetter
 import org.jetbrains.kotlin.ir.visitors.*
 
+@OptIn(ExperimentalCompilerApi::class)
 @AutoService(ComponentRegistrar::class)
 class AccessorModifierComponentRegistrar : ComponentRegistrar {
     override fun registerProjectComponents(project: MockProject, configuration: CompilerConfiguration) {
@@ -105,4 +111,28 @@ fun FileLoweringPass.runOnFileInOrder(irFile: IrFile) {
             declaration.acceptChildrenVoid(this)
         }
     })
+}
+
+@OptIn(ExperimentalCompilerApi::class)
+@AutoService(CommandLineProcessor::class)
+class RealmCommandLineProcessor : CommandLineProcessor {
+    override val pluginId: String
+        get() = "dev.nhachicha.accessor-modifier-compiler-plugin"
+    override val pluginOptions: Collection<CliOption> = listOf(
+        CliOption(
+            optionName = "option-key",
+            valueDescription = "Sample option",
+            description = "Some sample option",
+            required = true,
+            allowMultipleOccurrences = false
+        ),
+    )
+
+    override fun processOption(
+        option: AbstractCliOption,
+        value: String,
+        configuration: CompilerConfiguration
+    ) {
+        super.processOption(option, value, configuration)
+    }
 }
