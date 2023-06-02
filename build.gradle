@@ -1,16 +1,12 @@
 buildscript {
-    repositories {
-        mavenLocal()
-    }
     ext.versions = [
-        'kotlin': '1.4.0',
-        'autoService': '1.0-rc6'
+        'kotlin': '1.8.20',
+        'autoService': '1.0'
     ]
 
     ext.deps = [
         'kotlin': [
             'stdlib': "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${versions.kotlin}",
-//            'compiler': "org.jetbrains.kotlin:kotlin-compiler:${versions.kotlin}",
             'compiler': "org.jetbrains.kotlin:kotlin-compiler-embeddable",
             'gradle': "org.jetbrains.kotlin:kotlin-gradle-plugin:${versions.kotlin}",
         ],
@@ -22,7 +18,7 @@ buildscript {
 }
 
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version '1.4.0'
+    id 'org.jetbrains.kotlin.jvm' version '1.8.20'
 }
 
 group 'dev.nhachicha'
@@ -31,11 +27,4 @@ version '0.0.1-SNAPSHOT'
 allprojects {
     group = rootProject.getGroup()
     version = rootProject.getVersion()
-
-    repositories {
-        mavenLocal()
-        mavenCentral()
-        maven { url "https://maven.google.com" }
-        maven { url "https://plugins.gradle.org/m2/" }
-    }
 }

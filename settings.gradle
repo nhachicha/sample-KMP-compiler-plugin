@@ -1,5 +1,10 @@
 rootProject.name = 'accessor-modifier'
 
+dependencyResolutionManagement {
+    repositories {
+        mavenLocal()
+        gradlePluginPortal()
+    }
+}
 include 'compiler-plugin'
 include 'gradle-plugin'
-
